@@ -390,7 +390,7 @@ class BaseEnv:
     ''''''
     old_heightmap = copy.copy(self.heightmap)
 
-    if self.obs_type == 'pixels':
+    if self.obs_type == 'pixel':
         self.heightmap = self._getHeightmap()
     elif self.obs_type == 'point_cloud':
         self.heightmap = self._getPointCloud()

@@ -245,9 +245,16 @@ class CloseLoopEnv(BaseEnv):
       if self.view_type.find('rgb') == -1:
         heightmap = heightmap.reshape([1, self.heightmap_size, self.heightmap_size])
       return self._isHolding(), None, heightmap
-    else:
+    elif self.obs_type == 'vec':
       obs = self._getVecObservation()
       return self._isHolding(), None, obs
+    elif self.obs_type == 'point_cloud':
+        self.heightmap = self._getPointCloud()
+        heightmap = self.heightmap
+        # TODO: add other configurations
+        return self._isHolding(), None, heightmap
+    else: 
+        raise ValueError(f'Invalid observation type: {self.obs_type}')
 
   def simulate(self, action):
     p, dx, dy, dz, r = self._decodeAction(action)

@@ -78,7 +78,7 @@ DEFAULT_CONFIG = {
   'close_loop_tray': False,
   # The ratio between the length covered in the observation to the size of the workspace
   'view_scale': 1.5,
-  # The type of observation. Choices: 'pixel', 'vec'
+  # The type of observation. Choices: 'pixel', 'vec', 'point_cloud'
   'obs_type': 'pixel',
   # workspace configurations to add a black area covering the workspace, removing the blue/white grid on the ground,
   # and so on. Takes in a list of keywords. Valid keywords:
