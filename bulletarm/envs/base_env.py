@@ -181,6 +181,7 @@ class BaseEnv:
     self.trans_robot = 'trans_robot' in config['workspace_option']
     if self.trans_robot and config['robot'] != 'kuka':
       raise NotImplementedError
+    self.obs_type = config['obs_type']
 
     self.robot.adjust_gripper_after_lift = config['adjust_gripper_after_lift']
     if config['robot'] == 'kuka':
@@ -388,18 +389,34 @@ class BaseEnv:
   def _getObservation(self, action=None):
     ''''''
     old_heightmap = copy.copy(self.heightmap)
-    self.heightmap = self._getHeightmap()
+
+    if self.obs_type == 'pixels':
+        self.heightmap = self._getHeightmap()
+    elif self.obs_type == 'point_cloud':
+        self.heightmap = self._getPointCloud()
 
     if action is None or self._isHolding() == False:
       in_hand_img = self.getEmptyInHand()
     else:
       motion_primative, x, y, z, rot = self._decodeAction(action)
-      in_hand_img = self.getInHandImage(old_heightmap, x, y, z, rot, self.heightmap)
+      if self.obs_type == 'pixels':
+          in_hand_img = self.getInHandImage(old_heightmap, x, y, z, rot, self.heightmap)
+      elif self.obs_type == 'point_cloud':
+          in_hand_img = self.getEmptyInHand()
+          #in_hand_img = self.getInHandImagePC(heightmap, x, y, z, rot, next_heightmap)
 
-    return self._isHolding(), in_hand_img, self.heightmap.reshape([1, self.heightmap_size, self.heightmap_size])
+    return (
+            self._isHolding(),
+            in_hand_img,
+            self.heightmap.reshape([1, self.heightmap_size, self.heightmap_size]) 
+                if self.obs_type =='pixels' else self.heightmap
+            )
 
   def _getHeightmap(self):
     return self.sensor.getHeightmap(self.heightmap_size)
+ 
+  def _getPointCloud(self):
+    return self.sensor.getPointCloud(self.heightmap_size)
 
   def _getValidPositions(self, border_padding, min_distance, existing_positions, num_shapes, sample_range=None):
     existing_positions_copy = copy.deepcopy(existing_positions)
